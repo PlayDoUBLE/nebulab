@@ -2,6 +2,7 @@ import streamlit as st
 from lunar_python import Solar, Lunar
 import pandas as pd
 import datetime
+import base64
 
 # --- 1. 頁面設定 ---
 st.set_page_config(page_title="五行分析與水晶推薦", layout="centered")
@@ -15,6 +16,16 @@ st.markdown("""
         padding: 3rem;
         border-radius: 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    /* 讓封面圖在滑鼠移過時有小動畫 */
+    .cover-link img {
+        transition: transform 0.3s;
+        width: 100%;
+        border-radius: 10px;
+    }
+    .cover-link img:hover {
+        transform: scale(1.01);
+        filter: brightness(90%);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -30,11 +41,27 @@ CRYSTAL = {
     "土": "【黃水晶、虎眼石】有助於穩定情緒與聚財。"
 }
 
-# --- 4. 封面 ---
+# --- 4. 封面 (點擊跳轉 IG 功能) ---
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
 try:
-    st.image("cover.jpg", use_container_width=True)
-except:
-    pass
+    # 讀取本地 cover.jpg 並轉為 base64 格式
+    bin_str = get_base64_of_bin_file('cover.jpg')
+    ig_url = "https://www.instagram.com/nebulab.crystals/"
+    
+    # 使用 HTML 建立可點擊的圖片連結
+    html_code = f'''
+        <a href="{ig_url}" target="_blank" class="cover-link">
+            <img src="data:image/jpeg;base64,{bin_str}" />
+        </a>
+    '''
+    st.markdown(html_code, unsafe_allow_html=True)
+except Exception:
+    # 如果找不到圖檔，則顯示標題文字
+    st.write("🌌 **Nebulab Crystals**")
 
 st.title("🌌 五行命盤查詢參考")
 
@@ -51,7 +78,6 @@ if submitted:
         lunar = solar.getLunar()
         ec = lunar.getEightChar()
         
-        # 修正：將八字提取拆解開來，避免長括號導致報錯
         bz = []
         bz.append(ec.getYearGan())
         bz.append(ec.getYearZhi())
@@ -79,9 +105,12 @@ if submitted:
             for m in missing:
                 st.info(f"🔮 **補【{m}】水晶推薦：**\n{CRYSTAL[m]}")
         else:
-            st.success("太棒了!您的五行平衡，什麼都不缺！")
+            st.success("您的五行平衡，什麼都不缺！")
 
     except Exception as e:
         st.error(f"發生錯誤：{e}")
 
+# --- 7. 頁尾與超連結 ---
+st.divider()
 st.caption("僅供參考，請勿過度迷信。")
+st.markdown("🔗 **挑選適合的水晶請洽 [Nebulab.Crystals](http://ig.me/m/nebulab.crystals)**")
