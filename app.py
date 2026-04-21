@@ -105,7 +105,7 @@ if submitted:
             for m in missing:
                 st.info(f"🔮 **補【{m}】水晶推薦：**\n{CRYSTAL[m]}")
         else:
-            st.success("您的五行平衡，什麼都不缺！")
+            st.success("哇~您的五行平衡，什麼都不缺！")
 
     except Exception as e:
         st.error(f"發生錯誤：{e}")
