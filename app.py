@@ -17,47 +17,49 @@ def get_image_base64(path):
 bg_data = get_image_base64("bg.jpg")
 cover_data = get_image_base64("cover.jpg")
 
-# --- 3. 核心樣式 (整合背景圖與網底容器) ---
-bg_css = f"""
-<style>
-    /* 全網頁背景設定 */
-    .stApp {{
-        background-image: linear-gradient(rgba(240, 242, 246, 0.7), rgba(240, 242, 246, 0.7)), 
-                          url("data:image/jpeg;base64,{bg_data}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }}
+# --- 3. 核心樣式 ---
+if bg_data:
+    bg_css = f"""
+    <style>
+        /* 全網頁背景設定 */
+        .stApp {{
+            background-image: linear-gradient(rgba(240, 242, 246, 0.7), rgba(240, 242, 246, 0.7)), 
+                              url("data:image/jpeg;base64,{bg_data}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }}
 
-    /* 中間容器：改為白色半透明網底 */
-    .block-container {{ 
-        background-color: rgba(255, 255, 255, 0.05) !important; 
-        padding: 1.5rem; 
-        border-radius: 15px; 
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1); 
-        backdrop-filter: blur(5px); /* 微毛玻璃效果 */
-    }}
-    
-    /* 標題自適應 */
-    h1 {{
-        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
-        line-height: 1.2 !important;
-        word-break: keep-all;
-    }}
+        /* 中間容器：半透明網底 */
+        .block-container {{ 
+            background-color: rgba(255, 255, 255, 0.75) !important; 
+            padding: 1.5rem; 
+            border-radius: 15px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1); 
+            backdrop-filter: blur(5px); 
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }}
+        
+        h1 {{
+            font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+            line-height: 1.2 !important;
+            word-break: keep-all;
+        }}
 
-    /* 隱藏 Streamlit 元件 */
-    #MainMenu, footer, header {{visibility: hidden;}}
-    .stAppDeployButton {{display:none;}}
+        #MainMenu, footer, header {{visibility: hidden;}}
+        .stAppDeployButton {{display:none;}}
 
-    @media (max-width: 640px) {{
-        .block-container {{ padding: 1rem; }}
-    }}
-</style>
-""" if bg_data else """<style>.stApp { background-color: #F0F2F6; } .block-container { background-color: #ffffff; padding: 1.5rem; border-radius: 15px; }</style>"""
+        @media (max-width: 640px) {{
+            .block-container {{ padding: 1rem; }}
+        }}
+    </style>
+    """
+else:
+    bg_css = """<style>.stApp { background-color: #F0F2F6; } .block-container { background-color: #ffffff; padding: 1.5rem; border-radius: 15px; }</style>"""
 
 st.markdown(bg_css, unsafe_allow_html=True)
 
-# --- 4. 數據定義 (保持您的原始完整文案) ---
+# --- 4. 數據定義 ---
 STEM_5 = {"甲":"木","乙":"木","丙":"火","丁":"火","戊":"土","己":"土","庚":"金","辛":"金","壬":"水","癸":"水"}
 BRANCH_5 = {"寅":"木","卯":"木","巳":"火","午":"火","申":"金","酉":"金","亥":"水","子":"水","辰":"土","戌":"土","丑":"土","未":"土"}
 ZODIAC = {"子":"鼠","丑":"牛","寅":"虎","卯":"兔","辰":"龍","巳":"蛇","午":"馬","未":"羊","申":"猴","酉":"雞","戌":"狗","亥":"豬"}
@@ -100,7 +102,7 @@ with st.form("user_input_form"):
         t = st.time_input("出生時間", value=datetime.time(12, 0))
     submitted = st.form_submit_button("開始分析")
 
-# --- 7. 運算與呈現 (保持原始邏輯) ---
+# --- 7. 運算與呈現 ---
 if submitted:
     try:
         s_date = d.strftime("%Y%m%d")
@@ -136,17 +138,32 @@ if submitted:
             st.markdown(f'<div style="display:flex;justify-content:space-between;"><b>{el}</b><b>{v}</b></div>', unsafe_allow_html=True)
             st.markdown(f'<div style="background:rgba(0,0,0,0.05);width:100%;height:15px;border-radius:10px;"><div style="background:{c};width:{p}%;height:100%;border-radius:10px;"></div></div>', unsafe_allow_html=True)
 
+        # --- 能量平衡建議邏輯 ---
         st.write("#### 🔮 能量平衡建議：")
-        m = [k for k, v in stats.items() if v == 0]
-        if m:
-            st.warning(f"⚠️ **五行缺失補足：** 缺少【{'、'.join(m)}】")
-            for x in m: 
+        
+        missing = [k for k, v in stats.items() if v == 0]
+        weak = [k for k, v in stats.items() if v == 1]
+        
+        if missing:
+            st.warning(f"⚠️ **五行缺失補足：** 缺少【{'、'.join(missing)}】")
+            for x in missing: 
+                st.info(f"✨ **【{x}】：** {WUXING_CONFIG[x]['advice']}")
+        elif weak:
+            st.warning(f"⚡ **五行能量補強：** 雖然五行俱全，但【{'、'.join(weak)}】能量較為偏弱，建議補強提升氣場。")
+            for x in weak:
                 st.info(f"✨ **【{x}】：** {WUXING_CONFIG[x]['advice']}")
         else:
-            st.success("✅ **您的五行平衡，什麼都不缺！但建議配戴水晶可進一步提升氣場喔！**")
+            st.success("✅ **您的五行非常平衡且充沛！建議配戴水晶可進一步穩定氣場喔！**")
         
-        msg = f"🌟 **靈數強化：** 建議配戴 **{info['crystal']}** 強化天賦。{info['encourage']}"
-        st.success(msg)
+        # --- 靈數強化 (紫色卡片) ---
+        msg_html = f"""
+        <div style="background-color: rgba(155, 89, 182, 0.15); border: 1px solid rgba(155, 89, 182, 0.3); padding: 15px; border-radius: 12px; color: #6C3483; margin-top: 20px; box-shadow: 0 4px 12px rgba(155, 89, 182, 0.1);">
+            <span style="font-size: 1.2rem; margin-right: 5px;">🌟</span>
+            <strong>靈數強化：</strong> 建議配戴 <strong>{info['crystal']}</strong> 強化天賦。<br>
+            <span style="font-size: 0.95rem; opacity: 0.9;">{info['encourage']}</span>
+        </div>
+        """
+        st.markdown(msg_html, unsafe_allow_html=True)
             
     except Exception as e:
         st.error(f"分析過程發生錯誤，請重新嘗試。")
