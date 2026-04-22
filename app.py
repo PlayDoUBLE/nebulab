@@ -58,10 +58,10 @@ with st.form("user_input_form"):
     with col1:
         d = st.date_input("出生日期", value=datetime.date(1981, 1, 7), 
                           min_value=datetime.date(1900, 1, 1), 
-                          max_value=datetime.date(2030, 12, 31))
+                          max_value=datetime.date(2026, 12, 31))
     with col2:
         t = st.time_input("出生時間", value=datetime.time(12, 0))
-    submitted = st.form_submit_button("開始查詢")
+    submitted = st.form_submit_button("查詢")
 
 # --- 6. 計算與結果呈現 ---
 if submitted:
