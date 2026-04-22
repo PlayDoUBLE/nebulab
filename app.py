@@ -67,7 +67,7 @@ st.title("🌌 五行命盤查詢參考")
 
 # --- 5. 輸入表單 ---
 with st.form("my_form"):
-    d = st.date_input("出生日期", value=datetime.date(1981, 1, 7), min_value=datetime.date(1900, 1, 1))
+    d = st.date_input("出生日期", value=datetime.date(1981, 1, 7), min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2026, 1, 7))
     t = st.time_input("出生時間", value=datetime.time(12, 0))
     submitted = st.form_submit_button("開始計算")
 
@@ -105,7 +105,7 @@ if submitted:
             for m in missing:
                 st.info(f"🔮 **補【{m}】水晶推薦：**\n{CRYSTAL[m]}")
         else:
-            st.success("哇~您的五行平衡，什麼都不缺！")
+            st.success("您的五行平衡，什麼都不缺！")
 
     except Exception as e:
         st.error(f"發生錯誤：{e}")
