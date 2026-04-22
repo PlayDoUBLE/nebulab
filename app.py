@@ -9,6 +9,7 @@ st.set_page_config(page_title="五行分析與水晶推薦", layout="centered")
 # --- 2. 核心樣式設定 ---
 st.markdown("""
 <style>
+    /* 原有的樣式 */
     .stApp { background-color: #F0F2F6; }
     .block-container {
         background-color: #ffffff;
@@ -16,6 +17,11 @@ st.markdown("""
         border-radius: 15px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     }
+
+    /* 👇 新增：隱藏右上方選單大頭貼、開發者連結與右下角浮水印 */
+    #MainMenu {visibility: hidden;}       /* 隱藏右上方選單 */
+    footer {visibility: hidden;}          /* 隱藏底部的 Made with Streamlit */
+    header {visibility: hidden;}          /* 隱藏頂部裝飾線 */
 </style>
 """, unsafe_allow_html=True)
 
