@@ -198,5 +198,5 @@ if submitted:
 
 # --- 7. 頁尾 ---
 st.divider()
-st.caption("僅供參考，請勿過度迷信；心有所願的人，是世界上最強的人。")
+st.caption("僅供參考，請勿過度迷信，心有所願的人，自然就會強大！")
 st.markdown("🔗 **挑選適合的水晶請洽 [Nebulab.Crystals](http://ig.me/m/nebulab.crystals)**")
