@@ -9,10 +9,32 @@ st.set_page_config(page_title="Nebulab 水晶五行分析", page_icon="🌌", la
 # --- 2. 核心樣式 ---
 st.markdown("""
 <style>
+    /* 讓背景與容器保持美觀 */
     .stApp { background-color: #F0F2F6; }
-    .block-container { background-color: #ffffff; padding: 3rem; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .block-container { 
+        background-color: #ffffff; 
+        padding: 1.5rem; /* 手機版縮小間距 */
+        border-radius: 15px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+    }
+    
+    /* 關鍵：自適應標題字體 */
+    h1 {
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important; /* 最小 1.5rem，隨寬度 6% 變動，最大 2.5rem */
+        line-height: 1.2 !important;
+        word-break: keep-all; /* 防止中文字被強行斷開 */
+    }
+
+    /* 隱藏不必要的 Streamlit 元件 */
     #MainMenu, footer, header {visibility: hidden;}
     .stAppDeployButton {display:none;}
+
+    /* 針對小螢幕（手機）的額外優化 */
+    @media (max-width: 640px) {
+        .block-container {
+            padding: 1rem; /* 手機邊距更小，增加內容空間 */
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
