@@ -127,5 +127,76 @@ if submitted:
 
 # --- 7. 頁尾 ---
 st.divider()
-st.caption("僅供參考，請勿過度迷信。")
+st.caption("僅供參考，請勿過度迷信；   with col1:
+        d = st.date_input("出生日期", value=datetime.date(1981, 1, 7), 
+                          min_value=datetime.date(1900, 1, 1), 
+                          max_value=datetime.date(2026, 12, 31))
+    with col2:
+        t = st.time_input("出生時間", value=datetime.time(12, 0))
+    submitted = st.form_submit_button("查詢")
+
+# --- 6. 計算與結果呈現 ---
+if submitted:
+    try:
+        # A. 八字與農曆運算
+        solar = Solar.fromYmdHms(d.year, d.month, d.day, t.hour, t.minute, 0)
+        lunar = solar.getLunar()
+        ec = lunar.getEightChar()
+        
+        # 取得時段描述 (例如 12:00-12:59)
+        time_range = f"{t.hour}:00-{t.hour}:59"
+        
+        # 取得生肖 (由年支判斷)
+        zodiac_name = ZODIAC.get(ec.getYearZhi(), "")
+        
+        # 組合顯示字串
+        y_label = f"{ec.getYearGan()}{ec.getYearZhi()}年"
+        m_label = f"{ec.getMonthGan()}{ec.getMonthZhi()}月"
+        d_label = f"{ec.getDayGan()}{ec.getDayZhi()}日"
+        h_label = f"{ec.getTimeGan()}{ec.getTimeZhi()}時"
+        
+        # 建立五行統計用的列表
+        bz_list = [ec.getYearGan(), ec.getYearZhi(), ec.getMonthGan(), ec.getMonthZhi(),
+                   ec.getDayGan(), ec.getDayZhi(), ec.getTimeGan(), ec.getTimeZhi()]
+        
+        # B. 五行統計
+        stats = {"金": 0, "木": 0, "水": 0, "火": 0, "土": 0}
+        for char in bz_list:
+            if char in STEM_5: stats[STEM_5[char]] += 1
+            if char in BRANCH_5: stats[BRANCH_5[char]] += 1
+
+        # C. 資訊顯示
+        st.divider()
+        st.markdown(f"**🎂 生日（陽曆）：** {d.year}年{d.month}月{d.day}日 {ec.getTimeZhi()} {time_range}時 **生肖為{zodiac_name}**")
+        st.markdown(f"**📜 生辰（八字）：** {y_label} {m_label} {d_label} {h_label}")
+        
+        st.write("---")
+        
+        # D. 繪製五行能量圖表
+        st.write("#### 五行衰旺指數對比：")
+        for el in ["金", "木", "水", "火", "土"]:
+            val = stats[el]
+            pct = (val / 8) * 100
+            clr = WUXING_CONFIG[el]["color"]
+            label_html = f'<div style="display:flex;justify-content:space-between;font-weight:bold;margin-top:10px;"><span>{el}</span><span>{val}</span></div>'
+            bar_html = f'<div style="background-color:#eee;border-radius:10px;width:100%;height:20px;"><div style="background-color:{clr};width:{pct}%;height:100%;border-radius:10px;"></div></div>'
+            st.markdown(label_html, unsafe_allow_html=True)
+            st.markdown(bar_html, unsafe_allow_html=True)
+
+        # E. 水晶建議
+        st.write("")
+        missing = [k for k, v in stats.items() if v == 0]
+        if missing:
+            st.warning(f"您的命盤中缺少：{'、'.join(missing)}")
+            for m in missing:
+                st.info(f"🔮 **補【{m}】水晶推薦：**\n{WUXING_CONFIG[m]['advice']}")
+        else:
+            st.success("您的五行平衡，什麼都不缺！但建議配戴水晶可進一步提升氣場喔！")
+            
+    except Exception as e:
+        st.error(f"查詢過程出錯，請檢查時間輸入。")
+
+# --- 7. 頁尾 ---
+st.divider()
+st.caption("僅供參考，請勿過度迷信；心有所願的人，是世界上最強的人。")
 st.markdown("🔗 **挑選適合的水晶請洽 [Nebulab.Crystals](http://ig.me/m/nebulab.crystals)**")
