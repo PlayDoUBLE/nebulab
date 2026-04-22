@@ -110,7 +110,7 @@ if submitted:
             for x in m: 
                 st.info(f"✨ **{x}：** {WUXING_CONFIG[x]['advice']}")
         else:
-            st.success("✅ **您的五行平衡，什麼都不缺！但建議配戴水晶可進一步提升氣場喔！")
+            st.success("✅ 您的五行平衡，什麼都不缺！但建議配戴水晶可進一步提升氣場喔！")
         
         # --- 靈數建議 ---
         st.success(f"🌟 **靈數強化：** 建議配戴 **{info['crystal']}** 強化天賦。")
