@@ -30,15 +30,15 @@ WUXING_CONFIG = {
 }
 
 LIFE_NUM_DATA = {
-    1: {"type": "開創領導類", "trait": "獨立、果斷、具領導力，但易流於自我中心。", "crystal": "鈦金、黃水晶"},
-    2: {"type": "溝通合作類", "trait": "溫和、敏感、善於合作，但易猶豫不決。", "crystal": "海藍寶、月光石"},
-    3: {"type": "創意表達類", "trait": "聰明、活潑、充滿創意，但易缺乏耐心。", "crystal": "紫水晶、粉晶"},
-    4: {"type": "穩定執行類", "trait": "務實、穩重、守規矩，但易過於固執。", "crystal": "綠幽靈、黑曜石"},
-    5: {"type": "自由冒險類", "trait": "嚮往自由、口才好，但易心浮氣躁。", "crystal": "白水晶、天河石"},
-    6: {"type": "奉獻療癒類", "trait": "追求完美、熱情慷慨，但易承擔壓力。", "crystal": "拉長石、紅紋石"},
-    7: {"type": "真理探索類", "trait": "愛思考、分析力強，但易生疑心病。", "crystal": "青金石、舒俱徠"},
-    8: {"type": "權力回饋類", "trait": "具備商業頭腦、注重效率，但易過於現實。", "crystal": "金髮晶、虎眼石"},
-    9: {"type": "夢想大愛類", "trait": "慈悲、想像力豐富，但易流於空想。", "crystal": "煙晶、黑髮晶"}
+    1: {"type": "開創領導類", "trait": "獨立果斷、具領導力，但易自我中心。", "crystal": "鈦金、黃水晶", "encourage": "相信直覺，大膽開創，你就是生命的主宰！"},
+    2: {"type": "溝通合作類", "trait": "溫和敏感、善於合作，但易猶豫不決。", "crystal": "海藍寶、月光石", "encourage": "溫柔就是你的力量，傾聽內心，平衡合作與自我。"},
+    3: {"type": "創意表達類", "trait": "聰明活潑、充滿創意，但易缺乏耐心。", "crystal": "紫水晶、粉晶", "encourage": "享受表達的快樂，世界需要你源源不絕的點子！"},
+    4: {"type": "穩定執行類", "trait": "務實穩重、守規矩，但易過於固執。", "crystal": "綠幽靈、黑曜石", "encourage": "穩定的根基能建構偉大事業，在規律中尋找靈活。"},
+    5: {"type": "自由冒險類", "trait": "嚮往自由、口才好，但易心浮氣躁。", "crystal": "白水晶、天河石", "encourage": "擁抱改變，在變動中保持專注，探索無限可能。"},
+    6: {"type": "奉獻療癒類", "trait": "追求完美、熱情慷慨，但易承擔壓力。", "crystal": "拉長石、紅紋石", "encourage": "學會先愛自己，你的愛會更有力量，讓完美自然呈現。"},
+    7: {"type": "真理探索類", "trait": "愛思考分析、觀察力強，但易生疑心。", "crystal": "青金石、舒俱徠", "encourage": "挖掘真相就是成長，相信你的智慧能看穿事物本質。"},
+    8: {"type": "權力回饋類", "trait": "具商業頭腦、注重效率，但易過於現實。", "crystal": "金髮晶、虎眼石", "encourage": "豐盛能量正與你連結，平衡物質與精神，創造豐饒。"},
+    9: {"type": "夢想大愛類", "trait": "慈悲想像力豐富，但易流於空想。", "crystal": "煙晶、黑髮晶", "encourage": "將遠大願景落實於行動，你的善念能帶來正向改變。"}
 }
 
 # --- 4. 封面 ---
@@ -56,7 +56,7 @@ st.title("🌌 五行命盤與生命靈數分析")
 with st.form("user_input_form"):
     col1, col2 = st.columns(2)
     with col1:
-        d = st.date_input("出生日期", value=datetime.date(1981, 1, 7))
+        d = st.date_input("出生日期", value=datetime.date(1981, 1, 7), min_value=datetime.date(1900, 1, 1), max_value=datetime.date(2027, 12, 31))
     with col2:
         t = st.time_input("出生時間", value=datetime.time(12, 0))
     submitted = st.form_submit_button("開始分析")
@@ -64,17 +64,18 @@ with st.form("user_input_form"):
 # --- 6. 運算與呈現 ---
 if submitted:
     try:
-        # A. 靈數
+        # A. 靈數運算
         s_date = d.strftime("%Y%m%d")
         total = sum(int(n) for n in s_date)
         while total > 9: 
             total = sum(int(n) for n in str(total))
         info = LIFE_NUM_DATA[total]
 
-        # B. 八字
+        # B. 八字運算
         sol = Solar.fromYmdHms(d.year, d.month, d.day, t.hour, t.minute, 0)
         lun = sol.getLunar()
         ec = lun.getEightChar()
+        zod = ZODIAC.get(ec.getYearZhi(), "")
         
         # C. 五行統計
         bz = [ec.getYearGan(), ec.getYearZhi(), ec.getMonthGan(), ec.getMonthZhi(),
@@ -86,10 +87,12 @@ if submitted:
 
         # D. 顯示結果
         st.divider()
-        st.write(f"🎂 **陽曆：** {d.year}/{d.month}/{d.day} {t.hour}:{t.minute} ({ZODIAC.get(ec.getYearZhi())})")
-        # 修改1：八字增加年月日時單位並以空格分開
-        bazhi_str = f"{ec.getYearGan()}{ec.getYearZhi()}年 {ec.getMonthGan()}{ec.getMonthZhi()}月 {ec.getDayGan()}{ec.getDayZhi()}日 {ec.getTimeGan()}{ec.getTimeZhi()}時"
-        st.write(f"📜 **八字：** {bazhi_str}")
+        st.write(f"🎂 **陽曆：** {d.year}/{d.month}/{d.day} {t.hour}:{t.minute} ({zod})")
+        
+        b_str = f"{ec.getYearGan()}{ec.getYearZhi()}年 {ec.getMonthGan()}{ec.getMonthZhi()}月 "
+        b_str += f"{ec.getDayGan()}{ec.getDayZhi()}日 {ec.getTimeGan()}{ec.getTimeZhi()}時"
+        st.write(f"📜 **八字：** {b_str}")
+        
         st.write(f"🔢 **生命靈數：{total} 號人** ({info['type']})")
         st.info(f"💡 **性格：** {info['trait']}")
         
@@ -107,16 +110,15 @@ if submitted:
         if m:
             st.warning(f"⚠️ **五行缺失補足：** 缺少【{'、'.join(m)}】")
             for x in m: 
-                # 修改2：五行字與水晶建議皆加粗
                 st.info(f"✨ **【{x}】：** {WUXING_CONFIG[x]['advice']}")
         else:
-            # 修改3：整句五行平衡語句加粗
             st.success("✅ **您的五行平衡，什麼都不缺！但建議配戴水晶可進一步提升氣場喔！**")
         
-        st.success(f"🌟 **靈數強化：** 建議配戴 **{info['crystal']}** 強化天賦。")
+        msg = f"🌟 **靈數強化：** 建議配戴 **{info['crystal']}** 強化天賦。{info['encourage']}"
+        st.success(msg)
             
     except Exception as e:
-        st.error("分析出錯，請檢查輸入。")
+        st.error(f"分析過程發生錯誤，請重新嘗試。")
 
 # --- 7. 頁尾 ---
 st.divider()
