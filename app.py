@@ -94,4 +94,4 @@ if submitted:
 # --- 7. 頁尾 ---
 st.divider()
 st.caption("僅供參考，請勿過度迷信。")
-st.markdown(f"🔗 **挑選適合的水晶請洽 [Nebulab.Crystals]({ig_url})**")
+st.markdown(f"🔗 **挑選適合的水晶請洽 [Nebulab.Crystals]({"http://ig.me/m/nebulab.crystals"})**")
